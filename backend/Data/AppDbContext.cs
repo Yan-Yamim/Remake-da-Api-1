@@ -16,6 +16,24 @@ namespace backend.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Ciclo>()
+                .HasOne(c => c.Turma)
+                .WithMany(t => t.Ciclos)
+                .HasForeignKey(c => c.turmaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Atividade>()
+                .HasOne(a => a.Ciclo)
+                .WithMany(c => c.Atividades)
+                .HasForeignKey(a => a.cicloId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Atividade>()
+                .HasOne(a => a.Aluno)
+                .WithMany(al => al.Atividades)
+                .HasForeignKey(a => a.alunoId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
