@@ -1,6 +1,6 @@
 namespace backend.DTO
 {
-    public class CicloDTO
+    public class CicloCompletoDTO
     {
         public string nomeCiclo { get; set; }
         public DateOnly dataInicio { get; set; }
