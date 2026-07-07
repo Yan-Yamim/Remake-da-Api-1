@@ -1906,11 +1906,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/app/backend.csproj",
+      "projectUniqueName": "/app/backend/backend.csproj",
       "projectName": "backend",
-      "projectPath": "/app/backend.csproj",
+      "projectPath": "/app/backend/backend.csproj",
       "packagesPath": "/root/.nuget/packages/",
-      "outputPath": "/app/obj/",
+      "outputPath": "/app/backend/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/root/.nuget/NuGet/NuGet.Config"
