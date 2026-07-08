@@ -42,5 +42,8 @@ namespace backend.Models
 
         [JsonIgnore]
         public List<Atividade> Atividades { get; set; } = new();
+
+        [JsonIgnore]
+        public List<Grupo> Grupos { get; set; } = new();
     }
 }
