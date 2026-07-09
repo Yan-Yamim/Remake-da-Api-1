@@ -1,4 +1,4 @@
-namespace backend.DTO
+namespace backend.DTO.DtoModels
 {
     public class TurmaDTO
     {
@@ -7,6 +7,6 @@ namespace backend.DTO
         public int QtdCiclos { get; set; }
         public int MediaTurma { get; set; }
         public List<AlunoDTO> Alunos { get; set; } = new();
-        public List<CicloDTO> Ciclos { get; set; } = new();
+        public List<CicloCompletoDTO> Ciclos { get; set; } = new();
     }
 }

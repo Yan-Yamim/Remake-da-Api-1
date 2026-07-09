@@ -1,4 +1,4 @@
-namespace backend.DTO
+namespace backend.DTO.DtoModels
 {
     public class CicloSimplesDTO
     {

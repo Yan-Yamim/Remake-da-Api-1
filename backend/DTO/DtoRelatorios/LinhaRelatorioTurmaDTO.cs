@@ -1,6 +1,6 @@
 namespace backend.DTO.DtoRelatorios
 {
-    public class LinhaRelatorioTurmaReportDTO
+    public class LinhaRelatorioTurmaDTO
     {
         public string NomeTurma { get; set; }
         public string NomeCiclo { get; set; }

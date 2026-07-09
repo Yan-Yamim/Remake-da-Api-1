@@ -1,13 +1,14 @@
 using backend.DTO.DtoRelatorios;
+using System.Threading.Tasks;
 
-namespace backend.Service
+namespace backend.Service.Interfaces
 {
     public interface IRelatorioRepository
     {
-        byte[] GerarRelatorioAlunos(FiltroAlunoReportDTO filtro);
-        byte[] GerarRelatorioCiclos(FiltroCicloReportDTO filtro);
-        byte[] GerarRelatorioTurmas(FiltroTurmaReportDTO filtro);
-        byte[] GerarRelatorioAtividades(FiltroAtividadeReportDTO filtro);
-        byte[] GerarRelatorioGrupos(FiltroGrupoReportDTO filtro);
+        Task<byte[]> GerarRelatorioAlunos(FiltroAlunoReportDTO filtro);
+        Task<byte[]> GerarRelatorioCiclos(FiltroCicloReportDTO filtro);
+        Task<byte[]> GerarRelatorioTurmas(FiltroTurmaReportDTO filtro);
+        Task<byte[]> GerarRelatorioAtividades(FiltroAtividadeReportDTO filtro);
+        Task<byte[]> GerarRelatorioGrupos(FiltroGrupoReportDTO filtro);
     }
 }

@@ -1,87 +1,100 @@
-using csvHelper;
+using Microsoft.EntityFrameworkCore;
+using backend.Data;
+using backend.Service.Interfaces;
+using backend.DTO.DtoRelatorios;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace backend.Service
 {
-    public class RelatorioService : RelatorioRepository
+    public class RelatorioService : IRelatorioRepository
     {
         private readonly AppDbContext _appContext;
+        private readonly ICsvExportService _csvExportService;
 
-        public RelatorioService(AppDbContext appContext) => _appContext = appContext;
-
-        public byte[] GerarRelatorioAlunos(FiltroAlunoReportDTO filtro)
+        public RelatorioService(AppDbContext appContext, ICsvExportService csvExportService)
         {
-            var dados = _appContext.Alunos
-                .Where(a => !filtro.TurmaId.HasValue || a.TurmaId == filtro.TurmaId)
-                .Select(a => new LinhaRelatorioAlunoDTO
+            _appContext = appContext;
+            _csvExportService = csvExportService;
+        }
+
+        public async Task<byte[]> GerarRelatorioAlunos(FiltroAlunoReportDTO filtro)
+        {
+            var query = _appContext.Turmas
+                .AsNoTracking()
+                .Where(t => !filtro.TurmaId.HasValue || t.turmaId == filtro.TurmaId.Value)
+                .SelectMany(t => t.Alunos.Select(a => new LinhaRelatorioAlunoDTO
                 {
                     NomeAluno = a.nomeAluno,
-                    NomeTurma = a.Turma.nomeTurma,
-                    NomeCiclo = a.Ciclo.nomeCiclo,
-                    NomeGrupo = a.Grupo.nomeGrupo,
+                    NomeTurma = t.nomeTurma,
+                    NomeCiclo = a.Ciclos.Select(c => c.nomeCiclo).FirstOrDefault() ?? "Sem Ciclo",
+                    NomeGrupo = a.Grupos.Select(g => g.nomeGrupo).FirstOrDefault() ?? "Sem Grupo",
                     NotaFinal = a.notaFinal.ToString()
-                }).toList();
+                }));
 
-                return CSVHelper.GerarCSV(dados);
+            var dados = await query.ToListAsync();
+            return _csvExportService.ExportToCsv(dados);
+        }
 
-        public byte[] GerarRelatorioCiclos(FiltroCicloReportDTO filtro)
+        public async Task<byte[]> GerarRelatorioCiclos(FiltroCicloReportDTO filtro)
         {
-            var dados = _appContext.Ciclos
-                .Where(c => !filtro.TurmaId.HasValue || c.TurmaId == filtro.TurmaId)
+            var query = _appContext.Ciclos
+                .AsNoTracking()
+                .Where(c => !filtro.TurmaId.HasValue || c.turmaId == filtro.TurmaId.Value)
                 .Select(c => new LinhaRelatorioCicloDTO
                 {
                     NomeCiclo = c.nomeCiclo,
+                    NomeTurma = c.Turma.nomeTurma
+                });
+
+            var dados = await query.ToListAsync();
+            return _csvExportService.ExportToCsv(dados);
+        }
+
+        public async Task<byte[]> GerarRelatorioTurmas(FiltroTurmaReportDTO filtro)
+        {
+            var query = _appContext.Ciclos
+                .AsNoTracking()
+                .Where(c => !filtro.CicloId.HasValue || c.idCiclo == filtro.CicloId.Value)
+                .Select(c => new LinhaRelatorioTurmaDTO
+                {
                     NomeTurma = c.Turma.nomeTurma,
-                    NomeGrupo = c.Grupo.nomeGrupo,
-                    PesoNota = c.pesoNota.ToString(),
-                    MediaCiclo = c.mediaCiclo.ToString()
-                }).toList();
+                    NomeCiclo = c.nomeCiclo
+                });
 
-                return CSVHelper.GerarCSV(dados);
+            var dados = await query.ToListAsync();
+            return _csvExportService.ExportToCsv(dados);
         }
 
-        public byte[] GerarRelatorioTurmas(FiltroTurmaReportDTO filtro)
+        public async Task<byte[]> GerarRelatorioAtividades(FiltroAtividadeReportDTO filtro)
         {
-            var dados = _appContext.Turmas
-                .Where(t => !filtro.CicloId.HasValue || t.CicloId == filtro.CicloId)
-                .Select(t => new LinhaRelatorioTurmaDTO
+            var query = _appContext.Ciclos
+                .AsNoTracking()
+                .Where(c => !filtro.CicloId.HasValue || c.idCiclo == filtro.CicloId.Value) 
+                .SelectMany(c => c.Atividades.Select(act => new LinhaRelatorioAtividadeDTO
                 {
-                    NomeTurma = t.nomeTurma,
-                    NomeCiclo = t.Ciclo.nomeCiclo,
-                    NomeGrupo = t.Grupo.nomeGrupo,
-                    QtdAluno = t.Alunos.Count(),
-                    MediaTurma = t.mediaTurma.ToString()
-                }).toList();
+                    NomeAtividade = act.nomeAtividade,
+                    NomeCiclo = c.nomeCiclo
+                }));
 
-                return CSVHelper.GerarCSV(dados);
+            var dados = await query.ToListAsync();
+            return _csvExportService.ExportToCsv(dados);
         }
 
-        public byte[] GerarRelatorioAtividades(FiltroAtividadeReportDTO filtro)
+        public async Task<byte[]> GerarRelatorioGrupos(FiltroGrupoReportDTO filtro)
         {
-            var dados = _appContext.Atividades
-                .Where(a => !filtro.CicloId.HasValue || a.CicloId == filtro.CicloId)
-                .Select(a => new LinhaRelatorioAtividadeDTO
-                {
-                    NomeAtividade = a.nomeAtividade,
-                    NomeCiclo = a.Ciclo.nomeCiclo,
-                    MediaAtividade = a.mediaAtividade.ToString()
-                }).toList();
-
-                return CSVHelper.GerarCSV(dados);
-        }
-
-        public byte[] GerarRelatorioGrupos(FiltroGrupoReportDTO filtro)
-        {
-            var dados = _appContext.Grupos
-                .Where(g => !filtro.CicloId.HasValue || g.CicloId == filtro.CicloId)
-                .Select(g => new LinhaRelatorioGrupoDTO
+            var query = _appContext.Alunos
+                .AsNoTracking()
+                .Where(a => a.Ciclos.Any(c => !filtro.CicloId.HasValue || c.idCiclo == filtro.CicloId.Value)) 
+                .SelectMany(a => a.Grupos.Select(g => new LinhaRelatorioGrupoDTO
                 {
                     NomeGrupo = g.nomeGrupo,
-                    NomeCiclo = g.Ciclo.nomeCiclo,
-                    QtdAluno = g.Alunos.Count(),
-                    MediaGrupo = g.mediaGrupo.ToString()
-                }).toList();
+                    NomeCiclo = a.Ciclos.Select(c => c.nomeCiclo).FirstOrDefault() ?? "Sem Ciclo",
+                    NomeAluno = a.nomeAluno
+                }));
 
-                return CSVHelper.GerarCSV(dados);
+            var dados = await query.ToListAsync();
+            return _csvExportService.ExportToCsv(dados);
         }
     }
 }
