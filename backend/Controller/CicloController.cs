@@ -9,35 +9,45 @@ namespace backend.Controller
     public class CicloController : ControllerBase
     {
         private readonly CicloService _cicloService;
+        private readonly TurmaService _turmaService;
 
-        public CicloController(CicloService cicloService)
+        public CicloController(CicloService cicloService, TurmaService turmaService)
         {
             _cicloService = cicloService;
+            _turmaService = turmaService;
         }
 
         [HttpGet]
-        public ActionResult<Ciclo> GetCiclo()
+        public ActionResult<List<Ciclo>> GetCiclo() 
         {
             var ciclos = _cicloService.listarCiclo();
             return Ok(ciclos);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Ciclo> GetCicloId(long idCiclo)
+        public ActionResult<Ciclo> GetCicloId(long id)
         {
-            var cicloComId = _cicloService.listarCicloId(idCiclo);
+            var cicloComId = _cicloService.listarCicloId(id);
+            if (cicloComId == null) return NotFound("Ciclo não encontrado.");
             return Ok(cicloComId);
         }
 
         [HttpPost]
         public ActionResult<Ciclo> PostCiclo([FromBody] Ciclo ciclo)
         {
+            var turma = _turmaService.listarTurmaId(ciclo.turmaId);
+
+            if (turma == null)
+            {
+                return NotFound($"Turma com ID {ciclo.turmaId} não encontrada.");
+            }
+
             var cicloSalvo = _cicloService.cadastrarCiclo(
                 ciclo.nomeCiclo,
                 ciclo.dataInicio,
                 ciclo.dataFim,
                 ciclo.pesoNota,
-                ciclo.Turma,
+                turma,
                 new List<Atividade>()
             );
 
@@ -45,10 +55,10 @@ namespace backend.Controller
         }
 
         [HttpPut("{id}")]
-        public ActionResult<Turma> PutCiclo(long idCiclo, [FromBody] Ciclo ciclo)
+        public ActionResult<Ciclo> PutCiclo(long id, [FromBody] Ciclo ciclo)
         {
             var cicloEditado = _cicloService.editarCiclo(
-                idCiclo,
+                id,
                 ciclo.nomeCiclo,
                 ciclo.dataInicio,
                 ciclo.dataFim,

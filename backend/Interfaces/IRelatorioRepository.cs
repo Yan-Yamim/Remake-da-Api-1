@@ -1,7 +1,7 @@
 using backend.DTO.DtoRelatorios;
 using System.Threading.Tasks;
 
-namespace backend.Service.Interfaces
+namespace backend.Interfaces
 {
     public interface IRelatorioRepository
     {

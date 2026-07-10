@@ -1,4 +1,4 @@
-namespace backend.Service.Interfaces
+namespace backend.Interfaces
 {
     public interface ICsvExportService
     {

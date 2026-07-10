@@ -29,7 +29,7 @@ namespace backend.Models
         public long turmaId { get; set; }
 
         [JsonIgnore]
-        public Turma Turma { get; set; } = new();
+        public Turma? Turma { get; set; }
 
         [JsonIgnore]
         public List<Atividade> Atividades { get; set; } = new();

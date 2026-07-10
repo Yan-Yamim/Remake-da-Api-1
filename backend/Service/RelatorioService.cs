@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
-using backend.Service.Interfaces;
+using backend.Interfaces;
 using backend.DTO.DtoRelatorios;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,7 +29,9 @@ namespace backend.Service
                     NomeTurma = t.nomeTurma,
                     NomeCiclo = a.Ciclos.Select(c => c.nomeCiclo).FirstOrDefault() ?? "Sem Ciclo",
                     NomeGrupo = a.Grupos.Select(g => g.nomeGrupo).FirstOrDefault() ?? "Sem Grupo",
-                    NotaFinal = a.notaFinal.ToString()
+                    NotaFinal = a.Atividades.Any() 
+                        ? a.Atividades.Average(at => at.notaAtividade).ToString() 
+                        : "0.00"
                 }));
 
             var dados = await query.ToListAsync();

@@ -1,5 +1,6 @@
 using backend.Data; 
 using backend.Service;
+using backend.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,9 @@ builder.Services.AddScoped<GrupoService>();
 
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddScoped<backend.Interfaces.ICsvExportService, backend.Service.CsvExportService>();
+builder.Services.AddScoped<backend.Interfaces.IRelatorioRepository, backend.Service.RelatorioService>();
 
 var app = builder.Build();
 
